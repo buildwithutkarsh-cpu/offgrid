@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OffGrid Delhi: A City-Wide ARG</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&family=Inter:wght@400;500&display=swap">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<style>
+:root{--bg:#000;--ink:#fff;--dim:#b9b9c4;--link:#8ab4ff;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:24px/1.15 "Single Day","Comic Sans MS",cursive;letter-spacing:-.03em;text-align:center}
+canvas{position:fixed;inset:0;width:100%;height:100%;z-index:-1}
+main{max-width:980px;margin:0 auto;padding:18px 18px 60px}
+h1{font:400 clamp(3rem,13vw,8rem)/.85 "Single Day",cursive;letter-spacing:-.06em;margin:.3em 0 .5em;text-shadow:3px 3px 0 #d71f04}
+h1::after{content:"";display:block;width:140px;height:0;border-top:3px dashed #fff;margin:.35em auto 0}
+h1.logo-heading{margin:.3em auto .5em;line-height:1;text-shadow:none}
+h1.logo-heading::after{display:none}
+.brand-logo{display:block;width:min(92vw,853px);height:auto;margin:0 auto}
+main>p:first-of-type::first-letter{color:#d71f04;font-size:1.6em}
+main{counter-reset:s}
+h2{font:400 clamp(2.2rem,8vw,4rem)/.9 "Single Day",cursive;letter-spacing:-.06em;margin:2em 0 .5em;counter-increment:s}
+h2::before{content:"0" counter(s) " /";display:block;font-size:1.1rem;letter-spacing:.02em;color:#d71f04;margin-bottom:.3em}
+b,summary{font-family:"Single Day",cursive;font-weight:400;letter-spacing:-.04em}
+summary{font-size:1.5rem}
+em,.it{font-style:italic}
+p{margin:0 auto 1em;max-width:70ch}
+a{color:var(--link)}a:visited{color:#c9a3ff}
+.sig{margin-top:1.4em}
+.sigil{display:block;width:min(300px,70vw);height:auto;margin:40px auto 10px;filter:drop-shadow(0 0 14px rgba(255,255,255,.35))}
+.pair{display:flex;justify-content:center;gap:34px;flex-wrap:wrap;margin:20px 0}
+.pair figure{margin:0;width:190px}
+.pair img{width:100%;height:auto;display:block}
+figcaption{font-family:Inter,system-ui,sans-serif;font-size:.8rem;color:var(--dim);margin-top:4px}
+.cipher{font-family:"Single Day",cursive;color:#d71f04;font-size:clamp(1.5rem,6vw,2.6rem);letter-spacing:.12em;margin:.3em 0}
+.dec{min-height:1.3em;color:#9cf0b0}
+input[type=range]{width:min(100%,380px)}
+input[type=text]{font:inherit;background:#000;color:#fff;border:1px solid #fff;padding:6px 10px;text-transform:uppercase;width:min(100%,260px)}
+button{font:inherit;background:#d71f04;color:#fff;border:2px solid #d71f04;border-radius:9px;padding:6px 16px;cursor:pointer}
+button.alt{background:#000;color:#fff}
+ol,ul{display:inline-block;text-align:left;max-width:68ch;padding-left:1.3em;margin:0 0 1em}
+li{margin-bottom:.5em}
+details{max-width:70ch;margin:10px auto;border:2px dashed #fff;border-radius:9px;padding:14px 20px;text-align:left}
+details[open]{border-color:#d71f04}
+summary{cursor:pointer}
+nav{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:28px;padding:12px 18px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)}
+nav .nav-spacer{flex:1}
+nav a{font:400 clamp(1rem,2.4vw,1.5rem)/1 "Single Day",cursive;color:#fff;text-decoration:none;text-transform:uppercase;letter-spacing:.02em}
+nav a:hover,nav a:focus{text-decoration:underline;text-underline-offset:5px}
+nav button{font-size:clamp(1rem,2.4vw,1.5rem);padding:6px 14px;border:2px solid #fff;outline:2px solid #d71f04;outline-offset:-5px;border-radius:8px}
+#team{max-width:1500px;margin:0 auto;padding-top:80px}
+#team h2{font:900 clamp(3.5rem,15vw,12rem)/.8 Impact,"Arial Narrow",sans-serif;letter-spacing:-.055em;text-transform:uppercase;margin:.25em 0 .45em;counter-increment:none;white-space:nowrap}
+#team h2::before{display:none}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:22px;text-align:left}
+.team-card{border:1px solid #292929;background:#0b0b0b;min-width:0}
+.team-card img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#111}
+.team-card .team-info{padding:16px 18px 20px}
+.team-card h3{font:400 clamp(1.35rem,3vw,1.8rem)/1.1 "Single Day",cursive;margin:0 0 8px;letter-spacing:-.03em}
+.team-card a{font:400 1rem/1.4 Inter,system-ui,sans-serif;color:#aaa;text-decoration:none;overflow-wrap:anywhere}
+.team-card a:hover{text-decoration:underline;color:#fff}
+@media(max-width:520px){nav{gap:16px;padding:10px}#team{padding-top:60px}#team h2{font-size:17vw}.team-grid{gap:14px}.team-card .team-info{padding:12px}}
+nav button{font-size:1.2rem;padding:10px 22px}
+details p{color:var(--dim);margin:.6em 0 0;font:400 17px/1.4 Inter,system-ui,sans-serif;letter-spacing:-.02em}
+.dim{color:var(--dim);font:1.1rem "Single Day",cursive;letter-spacing:-.02em}
+button,input[type=text]{font-family:"Single Day",cursive;font-size:1.2rem;letter-spacing:-.02em}
+.sig{color:#999;text-decoration:underline;text-underline-offset:5px}
+.glitch{animation:g 6s infinite steps(1)}
+@keyframes g{0%,93%,100%{transform:none;text-shadow:none}94%{transform:translateX(3px);text-shadow:-3px 0 #f0f,3px 0 #0ff}96%{transform:translateX(-2px)}}
+.rec{display:inline-block;width:10px;height:10px;border-radius:50%;background:#e33;margin-right:6px;animation:b 1.2s steps(2) infinite}
+@keyframes b{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.glitch,.rec{animation:none}}
+</style></head><body>
+<nav>
+<a href="/">Home</a>
+<a href="/#faq">FAQ</a>
+<span class="nav-spacer"></span>
+<button type="button" onclick="location.href='/register'">Register</button>
+</nav>
+<main id="team-page">
+<section id="team" aria-labelledby="team-heading">
+<h2 id="team-heading">Organisers</h2>
+<div class="team-grid">
+<article class="team-card">
+<img src="/utkarsh.png" alt="Utkarsh Saraswat" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='/utkarsh.jpg'}else{this.style.display='none'}">
+<div class="team-info">
+<h3>Utkarsh Saraswat</h3>
+<a href="mailto:Buildwithutkarsh@gmail.com">Buildwithutkarsh@gmail.com</a>
+</div>
+</article>
+</div>
+</section>
+</main>
+</body></html>
