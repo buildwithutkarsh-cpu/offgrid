@@ -40,6 +40,8 @@ li{margin-bottom:.5em}
 details{max-width:70ch;margin:10px auto;border:2px dashed #fff;border-radius:9px;padding:14px 20px;text-align:left}
 details[open]{border-color:#d71f04}
 summary{cursor:pointer}
+nav{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;justify-content:flex-end;padding:12px 18px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px)}
+nav button{font-size:1rem;padding:5px 14px}
 details p{color:var(--dim);margin:.6em 0 0;font:400 17px/1.4 Inter,system-ui,sans-serif;letter-spacing:-.02em}
 .dim{color:var(--dim);font:1.1rem "Single Day",cursive;letter-spacing:-.02em}
 button,input[type=text]{font-family:"Single Day",cursive;font-size:1.2rem;letter-spacing:-.02em}
@@ -50,6 +52,9 @@ button,input[type=text]{font-family:"Single Day",cursive;font-size:1.2rem;letter
 @keyframes b{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.glitch,.rec{animation:none}}
 </style></head><body>
+<nav>
+<button type="button" onclick="location.href='/register'">Register</button>
+</nav>
 <canvas id="sky" aria-hidden="true"></canvas>
 <main>
 <h1 class="glitch">OFFGRID<br>DELHI</h1>
