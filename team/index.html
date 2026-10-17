@@ -1,149 +1,168 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OffGrid Delhi: Team</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&family=Inter:wght@400;500&display=swap">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<style>
-:root {
-  --bg: #000;
-  --ink: #fff;
-  --dim: #b9b9c4;
-  --link: #8ab4ff;
-  color-scheme: dark;
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font: 24px/1.15 "Single Day", "Comic Sans MS", cursive;
-  letter-spacing: -.03em;
-  text-align: center;
-}
-nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  padding: 12px 18px;
-  background: rgba(0,0,0,.7);
-  backdrop-filter: blur(6px);
-}
-nav .nav-spacer { flex: 1; }
-nav a {
-  font: 400 clamp(1rem,2.4vw,1.5rem)/1 "Single Day", cursive;
-  color: #fff;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-nav a:hover { text-decoration: underline; }
-nav button {
-  font: 400 1.2rem "Single Day", cursive;
-  background: #d71f04;
-  color: #fff;
-  border: 2px solid #fff;
-  outline: 2px solid #d71f04;
-  outline-offset: -5px;
-  border-radius: 8px;
-  padding: 10px 22px;
-  cursor: pointer;
-}
-main {
-  max-width: 1500px;
-  margin: 0 auto;
-  padding: 100px 18px 60px;
-}
-.heading { margin: 0 auto 44px; }
-.organiser-logo {
-  display: block;
-  width: min(100%, 1100px);
-  height: auto;
-  margin: 0 auto;
-}
-#team h2 {
-  font: 900 clamp(3.5rem,15vw,12rem)/.8 Impact,"Arial Narrow",sans-serif;
-  letter-spacing: -.055em;
-  text-transform: uppercase;
-  margin: .25em 0 .45em;
-}
-.team-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),360px));
-  justify-content: center;
-  gap: 22px;
-  text-align: left;
-}
-.team-card {
-  border: 1px solid #292929;
-  background: #0b0b0b;
-  min-width: 0;
-}
-.team-card img.profile {
-  display: block;
-  width: 100%;
-  aspect-ratio: 4/5;
-  object-fit: cover;
-  background: #111;
-}
-.team-info { padding: 16px 18px 20px; }
-.team-info h3 {
-  font: 400 clamp(1.35rem,3vw,1.8rem)/1.1 "Single Day",cursive;
-  margin: 0 0 8px;
-}
-.team-info a {
-  font: 400 1rem/1.4 Inter,system-ui,sans-serif;
-  color: #aaa;
-  text-decoration: none;
-  overflow-wrap: anywhere;
-}
-.team-info a:hover { text-decoration: underline; color: #fff; }
-@media(max-width:520px) {
-  nav { gap: 16px; padding: 10px; }
-  main { padding: 80px 14px 60px; }
-  .heading { margin-bottom: 28px; }
-  .team-grid { gap: 14px; }
-  .team-info { padding: 12px; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Organisers | OffGrid Delhi</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&family=Inter:wght@400;500&display=swap">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: "Single Day", cursive;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      padding: 14px 20px;
+      background: rgba(0, 0, 0, 0.9);
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.4rem;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .nav-spacer {
+      flex: 1;
+    }
+
+    .register {
+      border: 2px solid #d71f04;
+      padding: 6px 16px;
+    }
+
+    main {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 35px 20px 60px;
+    }
+
+    .organisers-logo {
+      display: block;
+      width: min(100%, 1100px);
+      height: auto;
+      margin: 0 auto 35px;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fit,
+        minmax(min(100%, 260px), 320px)
+      );
+      justify-content: center;
+      gap: 22px;
+    }
+
+    .team-card {
+      min-width: 0;
+      background: #0b0b0b;
+      border: 1px solid #292929;
+    }
+
+    .team-card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      background: #111;
+    }
+
+    .team-info {
+      padding: 16px 18px 20px;
+    }
+
+    .team-info h2 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+      font-weight: 400;
+    }
+
+    .team-info a {
+      color: #aaa;
+      font: 400 1rem/1.5 Inter, sans-serif;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+
+    .team-info a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 520px) {
+      nav {
+        gap: 14px;
+        padding: 12px;
+      }
+
+      nav a {
+        font-size: 1.1rem;
+      }
+
+      main {
+        padding: 25px 14px 40px;
+      }
+
+      .team-grid {
+        gap: 14px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<nav>
-  <a href="/">Home</a>
-  <a href="/#faq">FAQ</a>
-  <span class="nav-spacer"></span>
-  <button type="button" onclick="location.href='/register'">Register</button>
-</nav>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/#faq">FAQ</a>
+    <span class="nav-spacer"></span>
+    <a class="register" href="/register">Register</a>
+  </nav>
 
-<main id="team-page">
-  <section id="team" aria-label="Team">
-    <header class="heading">
-      <!-- Paste the complete SVG markup here, replacing this comment. -->
-      <!-- Keep its original <svg> and all its <path> elements. -->
-    </header>
+  <main>
+    <!-- SVG heading: keep organizers.svg in this same folder -->
+    <img
+      class="organisers-logo"
+      src="./organizers.svg"
+      alt="Organisers"
+    >
 
-    <div class="team-grid">
+    <section class="team-grid" aria-label="Organisers">
       <article class="team-card">
-        <img class="profile"
+        <img
           src="/utkarsh.png"
           alt="Utkarsh Saraswat"
-          onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='/utkarsh.jpg'}else{this.style.display='none'}">
+          onerror="if (!this.dataset.fallback) { this.dataset.fallback='1'; this.src='/utkarsh.jpg'; } else { this.style.display='none'; }"
+        >
+
         <div class="team-info">
-          <h3>Utkarsh Saraswat</h3>
-          <a href="mailto:Buildwithutkarsh@gmail.com">Buildwithutkarsh@gmail.com</a>
+          <h2>Utkarsh Saraswat</h2>
+          <a href="mailto:Buildwithutkarsh@gmail.com">
+            Buildwithutkarsh@gmail.com
+          </a>
         </div>
       </article>
-    </div>
-  </section>
-</main>
+    </section>
+  </main>
 </body>
 </html>
+```
