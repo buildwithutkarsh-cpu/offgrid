@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08090b">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Admin | OffGrid Delhi</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#08090b;color:#f5f5f5}*{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 0,#35130f 0,transparent 48%),#08090b}.card{width:min(100%,460px);padding:36px;border:1px solid #ffffff20;border-radius:18px;background:#101114ef;box-shadow:0 24px 90px #0009}.wide{width:min(100%,900px)}.eyebrow{color:#ff6048;font-size:.75rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase}h1{margin:12px 0;font-size:2rem;letter-spacing:-.04em}.sub,.muted{color:#a4a6ad;line-height:1.6}.sub{margin-bottom:24px}label{display:block;margin:20px 0 8px;font-size:.9rem}input{width:100%;padding:13px 14px;border:1px solid #383a40;border-radius:9px;background:#08090b;color:#fff;font:inherit}input:focus{outline:2px solid #f04b35;outline-offset:2px}button{padding:12px 16px;border:0;border-radius:9px;background:#d93220;color:#fff;font:inherit;font-weight:700;cursor:pointer}button.secondary{border:1px solid #ffffff30;background:#141518}button:disabled{opacity:.6;cursor:wait}.full{width:100%;margin-top:16px}#message{min-height:1.5em;margin:14px 0 0;color:#ff8878;font-size:.9rem}.foot{margin-top:26px;color:#777982;font-size:.8rem}.setup{padding:18px;margin:0 0 24px;border:1px solid #ffffff20;border-radius:12px;background:#0a0b0d}.setup p{margin:0;color:#a4a6ad;font-size:.9rem;line-height:1.5}.setup-row{display:flex;gap:10px}.setup-row input{min-width:0}.hidden{display:none!important}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:24px;border-bottom:1px solid #ffffff20}.top h1{font-size:clamp(2rem,5vw,3rem)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:28px}.panel{padding:22px;border:1px solid #ffffff20;border-radius:14px;background:#0b0c0e}.panel h2{margin:0 0 12px;font-size:1.1rem}.panel p{margin:0;color:#a4a6ad;line-height:1.6}.status{color:#9ce1ad!important}.dot{display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:#4fd477;box-shadow:0 0 12px #4fd477}.notice{margin-top:20px;padding:16px;border-left:3px solid #d93220;background:#d9322015;color:#c4c5ca;line-height:1.6}.error{color:#ff8878!important}@media(max-width:520px){.card{padding:25px}.setup-row{flex-direction:column}.setup-row button{width:100%}.top{align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <main id="login-view" class="card">
+    <p class="eyebrow">OffGrid Delhi · Private</p>
+    <h1>Admin access</h1>
+    <p class="sub">Sign in to open the administration dashboard.</p>
+
+    <section id="api-setup" class="setup">
+      <p><strong>Connect your backend</strong><br>Paste your Render Web Service URL (for example, https://offgrid-api.onrender.com).</p>
+      <label for="api-url">Backend URL</label>
+      <div class="setup-row">
+        <input id="api-url" type="url" inputmode="url" placeholder="https://your-service.onrender.com" autocomplete="url">
+        <button id="connect" type="button">Connect</button>
+      </div>
+      <p id="api-message" role="status" aria-live="polite"></p>
+    </section>
+
+    <form id="login-form" class="hidden">
+      <label for="password">Admin password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button id="submit" class="full" type="submit">Sign in</button>
+      <p id="message" role="status" aria-live="polite"></p>
+    </form>
+    <button id="change-api" class="secondary full hidden" type="button">Change backend URL</button>
+    <p class="foot">Authorized team members only.</p>
+  </main>
+
+  <main id="dashboard-view" class="card wide hidden">
+    <header class="top">
+      <div><div class="eyebrow">OffGrid Delhi · Admin</div><h1>Dashboard</h1></div>
+      <button id="logout" class="secondary" type="button">Sign out</button>
+    </header>
+    <section class="grid" aria-label="System status">
+      <article class="panel"><h2>API status</h2><p id="api-status">Checking…</p></article>
+      <article class="panel"><h2>Admin session</h2><p class="status"><span class="dot" aria-hidden="true"></span>Signed in</p></article>
+    </section>
+    <aside class="notice">Admin access is set up. Registration management is not connected yet, so this dashboard does not display or change participant data.</aside>
+  </main>
+
+  <script>
+    const savedApiUrl = localStorage.getItem('offgrid-admin-api') || '';
+    const loginView = document.querySelector('#login-view');
+    const dashboardView = document.querySelector('#dashboard-view');
+    const apiUrlInput = document.querySelector('#api-url');
+    const apiSetup = document.querySelector('#api-setup');
+    const loginForm = document.querySelector('#login-form');
+    let apiBase = '';
+
+    function setApiBase(value) {
+      apiBase = value.replace(/\/+$/, '');
+      localStorage.setItem('offgrid-admin-api', apiBase);
+      apiSetup.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      document.querySelector('#change-api').classList.remove('hidden');
+      document.querySelector('#password').focus();
+    }
+
+    async function connectApi() {
+      const message = document.querySelector('#api-message');
+      const button = document.querySelector('#connect');
+      const candidate = apiUrlInput.value.trim().replace(/\/+$/, '');
+      if (!candidate) {
+        message.textContent = 'Enter your Render backend URL first.';
+        return;
+      }
+      button.disabled = true;
+      message.textContent = 'Checking backend…';
+      try {
+        const response = await fetch(`${candidate}/api/health`);
+        if (!response.ok || (await response.json()).status !== 'ok') throw new Error('The backend did not return a healthy response.');
+        setApiBase(candidate);
+      } catch (error) {
+        message.textContent = `${error.message || 'Could not reach the backend.'} Check the URL and FRONTEND_ORIGIN CORS setting.`;
+        button.disabled = false;
+      }
+    }
+
+    document.querySelector('#connect').addEventListener('click', connectApi);
+    document.querySelector('#change-api').addEventListener('click', () => {
+      localStorage.removeItem('offgrid-admin-api');
+      apiBase = '';
+      loginForm.classList.add('hidden');
+      apiSetup.classList.remove('hidden');
+      document.querySelector('#change-api').classList.add('hidden');
+      document.querySelector('#api-message').textContent = '';
+    });
+    apiUrlInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        connectApi();
+      }
+    });
+
+    async function openDashboard() {
+      loginView.classList.add('hidden');
+      dashboardView.classList.remove('hidden');
+      try {
+        const response = await fetch(`${apiBase}/api/health`);
+        if (!response.ok) throw new Error();
+        const result = await response.json();
+        document.querySelector('#api-status').textContent = result.status === 'ok' ? 'Online' : 'Unexpected response';
+      } catch {
+        const status = document.querySelector('#api-status');
+        status.textContent = 'Unavailable';
+        status.classList.add('error');
+      }
+    }
+
+    async function checkSession() {
+      if (!apiBase) return;
+      try {
+        const response = await fetch(`${apiBase}/api/admin/session`, { credentials: 'include' });
+        if (response.ok) await openDashboard();
+      } catch {
+        // The login view remains available if the API session cannot be checked.
+      }
+    }
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const submit = document.querySelector('#submit');
+      const message = document.querySelector('#message');
+      submit.disabled = true;
+      message.textContent = 'Signing in…';
+      try {
+        const response = await fetch(`${apiBase}/api/admin/login`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: loginForm.password.value }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Unable to sign in.');
+        await openDashboard();
+      } catch (error) {
+        message.textContent = error.message || 'Unable to reach the server. Check the backend CORS settings.';
+      } finally {
+        submit.disabled = false;
+      }
+    });
+
+    document.querySelector('#logout').addEventListener('click', async () => {
+      await fetch(`${apiBase}/api/admin/logout`, { method: 'POST', credentials: 'include' });
+      dashboardView.classList.add('hidden');
+      loginView.classList.remove('hidden');
+      loginForm.reset();
+    });
+
+    if (savedApiUrl) {
+      apiUrlInput.value = savedApiUrl;
+      setApiBase(savedApiUrl);
+      checkSession();
+    }
+  </script>
+</body>
+</html>
