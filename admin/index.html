@@ -3,163 +3,376 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#08090b">
+  <meta name="theme-color" content="#000">
   <meta name="robots" content="noindex,nofollow">
-  <title>Admin | OffGrid Delhi</title>
+  <title>Admin · OffGrid Delhi</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Single+Day&family=Inter:wght@400;500;600&display=swap">
   <style>
-    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#08090b;color:#f5f5f5}*{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 0,#35130f 0,transparent 48%),#08090b}.card{width:min(100%,460px);padding:36px;border:1px solid #ffffff20;border-radius:18px;background:#101114ef;box-shadow:0 24px 90px #0009}.wide{width:min(100%,900px)}.eyebrow{color:#ff6048;font-size:.75rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase}h1{margin:12px 0;font-size:2rem;letter-spacing:-.04em}.sub,.muted{color:#a4a6ad;line-height:1.6}.sub{margin-bottom:24px}label{display:block;margin:20px 0 8px;font-size:.9rem}input{width:100%;padding:13px 14px;border:1px solid #383a40;border-radius:9px;background:#08090b;color:#fff;font:inherit}input:focus{outline:2px solid #f04b35;outline-offset:2px}button{padding:12px 16px;border:0;border-radius:9px;background:#d93220;color:#fff;font:inherit;font-weight:700;cursor:pointer}button.secondary{border:1px solid #ffffff30;background:#141518}button:disabled{opacity:.6;cursor:wait}.full{width:100%;margin-top:16px}#message{min-height:1.5em;margin:14px 0 0;color:#ff8878;font-size:.9rem}.foot{margin-top:26px;color:#777982;font-size:.8rem}.setup{padding:18px;margin:0 0 24px;border:1px solid #ffffff20;border-radius:12px;background:#0a0b0d}.setup p{margin:0;color:#a4a6ad;font-size:.9rem;line-height:1.5}.setup-row{display:flex;gap:10px}.setup-row input{min-width:0}.hidden{display:none!important}.top{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-bottom:24px;border-bottom:1px solid #ffffff20}.top h1{font-size:clamp(2rem,5vw,3rem)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:28px}.panel{padding:22px;border:1px solid #ffffff20;border-radius:14px;background:#0b0c0e}.panel h2{margin:0 0 12px;font-size:1.1rem}.panel p{margin:0;color:#a4a6ad;line-height:1.6}.status{color:#9ce1ad!important}.dot{display:inline-block;width:8px;height:8px;margin-right:8px;border-radius:50%;background:#4fd477;box-shadow:0 0 12px #4fd477}.notice{margin-top:20px;padding:16px;border-left:3px solid #d93220;background:#d9322015;color:#c4c5ca;line-height:1.6}.error{color:#ff8878!important}@media(max-width:520px){.card{padding:25px}.setup-row{flex-direction:column}.setup-row button{width:100%}.top{align-items:flex-start}}
+    :root{--bg:#000;--surface:#0d0d0d;--surface2:#141414;--border:#222;--red:#d71f04;--red2:#d71f04;--ok:#9cf0b0;--dim:#b9b9c4;--ink:#fff;color-scheme:dark}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:var(--bg);color:var(--ink);font:400 15px/1.5 Inter,system-ui,sans-serif}
+
+    /* ── LOGIN ── */
+    #login-view{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at 50% 0,#2a0a00 0,transparent 55%),var(--bg)}
+    .login-card{width:min(100%,440px);padding:36px;border:1px solid #1e1e1e;border-radius:20px;background:#0a0a0aee;box-shadow:0 32px 100px #0008}
+    .eyebrow{font:700 .72rem/.9 Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--red)}
+    .login-card h1{font:400 2.5rem/.9 "Single Day",cursive;letter-spacing:-.04em;margin:10px 0 6px;text-shadow:2px 2px 0 var(--red)}
+    .login-card .sub{color:var(--dim);margin-bottom:24px;font-size:.92rem}
+    label{display:block;margin:18px 0 6px;font-size:.88rem;color:#bbb}
+    input[type=password]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:#050505;color:var(--ink);font:inherit}
+    input:focus{outline:2px solid var(--red);outline-offset:2px}
+    .btn{padding:11px 18px;border:0;border-radius:10px;background:var(--red);color:#fff;font:600 .95rem/1 Inter,sans-serif;cursor:pointer;transition:background .15s}
+    .btn:hover{background:var(--red2)}.btn:disabled{opacity:.5;cursor:wait}
+    .btn.ghost{background:transparent;border:1px solid #2a2a2a;color:#aaa}.btn.ghost:hover{border-color:#444;background:#111}
+    .btn.full{width:100%;margin-top:14px;padding:13px}
+    .form-msg{min-height:1.4em;margin-top:12px;font-size:.88rem;color:var(--red2)}
+    .form-msg.ok{color:var(--ok)}
+    .foot{margin-top:22px;font-size:.78rem;color:#444;text-align:center}
+    .hidden{display:none!important}
+
+    /* ── DASHBOARD ── */
+    #dashboard-view{min-height:100vh;display:flex;flex-direction:column}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--border);background:#050505;position:sticky;top:0;z-index:10}
+    .topbar-left{display:flex;align-items:center;gap:14px}
+    .logo{font:400 1.6rem/.9 "Single Day",cursive;letter-spacing:-.04em;text-shadow:1px 1px 0 var(--red)}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .dot-live{width:8px;height:8px;border-radius:50%;background:#4fd477;box-shadow:0 0 10px #4fd47799;flex-shrink:0}
+    .dash-body{flex:1;padding:28px;max-width:1100px;width:100%;margin:0 auto}
+
+    /* stats row */
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:28px}
+    .stat{padding:18px 20px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+    .stat-label{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+    .stat-val{font:400 2.2rem/.9 "Single Day",cursive;color:var(--ink)}
+    .stat-val.red{color:var(--red2)}.stat-val.ok{color:var(--ok)}
+
+    /* tabs */
+    .tabs{display:flex;gap:4px;margin-bottom:22px;border-bottom:1px solid var(--border);padding-bottom:0}
+    .tab{padding:9px 18px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--dim);font:500 .9rem/1 Inter,sans-serif;cursor:pointer;margin-bottom:-1px;transition:all .15s}
+    .tab:hover{color:var(--ink)}.tab.active{color:var(--ink);border-bottom-color:var(--red)}
+
+    /* table */
+    .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+    table{width:100%;border-collapse:collapse;font-size:.88rem}
+    thead th{padding:11px 14px;text-align:left;background:var(--surface2);color:var(--dim);font:600 .75rem/1 Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    tbody tr{border-bottom:1px solid #111}
+    tbody tr:last-child{border-bottom:0}
+    tbody tr:hover{background:#0f0f0f}
+    td{padding:11px 14px;vertical-align:top;color:#ccc}
+    td .code{font:500 .85rem/1 "Courier New",monospace;background:#111;padding:2px 7px;border-radius:5px;color:#e0e0e0}
+    td .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:600}
+    .pill.solved{background:#0f2a16;color:var(--ok)}.pill.unsolved{background:#1a0a0a;color:#c44}
+    .pill.submitted{background:#1a1500;color:#ffd95c}
+    td .excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#999;font-size:.83rem;margin-top:3px}
+
+    /* journal detail modal */
+    .modal-bg{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:20px;z-index:100}
+    .modal{width:min(100%,600px);max-height:80vh;overflow-y:auto;background:#0e0e0e;border:1px solid var(--border);border-radius:16px;padding:28px}
+    .modal h3{font:400 1.6rem/.9 "Single Day",cursive;margin-bottom:4px}
+    .modal .meta{font-size:.82rem;color:var(--dim);margin-bottom:20px}
+    .modal-section{margin-bottom:20px}
+    .modal-section strong{display:block;font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);margin-bottom:6px}
+    .modal-section p{font-size:.92rem;color:#ddd;line-height:1.6;white-space:pre-wrap}
+    .modal-close{margin-top:4px}
+
+    /* empty state */
+    .empty{text-align:center;padding:48px 20px;color:var(--dim)}
+    .empty .empty-ico{font-size:2.4rem;margin-bottom:10px}
+    .loading{text-align:center;padding:40px;color:var(--dim);font-size:.9rem}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .section-head h2{font:400 1.5rem/.9 "Single Day",cursive}
+    .search{padding:9px 13px;border:1px solid var(--border);border-radius:9px;background:#080808;color:var(--ink);font:inherit;font-size:.88rem;width:220px}
+    .search:focus{outline:2px solid var(--red);outline-offset:2px}
+    .notice{margin-top:20px;padding:14px 18px;border-left:3px solid var(--red);background:#1a0500;color:#c8c0bc;font-size:.88rem;line-height:1.6;border-radius:0 10px 10px 0}
+    @media(max-width:600px){.topbar{padding:14px 16px}.dash-body{padding:16px}.stats{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
-  <main id="login-view" class="card">
-    <p class="eyebrow">OffGrid Delhi · Private</p>
-    <h1>Admin access</h1>
-    <p class="sub">Sign in to open the administration dashboard.</p>
 
-    <section id="api-setup" class="setup">
-      <p><strong>Connect your backend</strong><br>Paste your Render Web Service URL (for example, https://offgrid-api.onrender.com).</p>
-      <label for="api-url">Backend URL</label>
-      <div class="setup-row">
-        <input id="api-url" type="url" inputmode="url" placeholder="https://your-service.onrender.com" autocomplete="url">
-        <button id="connect" type="button">Connect</button>
-      </div>
-      <p id="api-message" role="status" aria-live="polite"></p>
-    </section>
+<!-- ═══════════ LOGIN ═══════════ -->
+<main id="login-view">
+  <div class="login-card">
+    <p class="eyebrow">OffGrid Delhi &middot; Private</p>
+    <h1>Admin</h1>
+    <p class="sub">Sign in to review journal entries and track participant progress.</p>
 
-    <form id="login-form" class="hidden">
+    <form id="login-form">
       <label for="password">Admin password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required>
-      <button id="submit" class="full" type="submit">Sign in</button>
-      <p id="message" role="status" aria-live="polite"></p>
+      <button id="submit" class="btn full" type="submit">Sign in &rarr;</button>
+      <p id="message" class="form-msg" role="status" aria-live="polite"></p>
     </form>
-    <button id="change-api" class="secondary full hidden" type="button">Change backend URL</button>
     <p class="foot">Authorized team members only.</p>
-  </main>
+  </div>
+</main>
 
-  <main id="dashboard-view" class="card wide hidden">
-    <header class="top">
-      <div><div class="eyebrow">OffGrid Delhi · Admin</div><h1>Dashboard</h1></div>
-      <button id="logout" class="secondary" type="button">Sign out</button>
-    </header>
-    <section class="grid" aria-label="System status">
-      <article class="panel"><h2>API status</h2><p id="api-status">Checking…</p></article>
-      <article class="panel"><h2>Admin session</h2><p class="status"><span class="dot" aria-hidden="true"></span>Signed in</p></article>
-    </section>
-    <aside class="notice">Admin access is set up. Registration management is not connected yet, so this dashboard does not display or change participant data.</aside>
-  </main>
+<!-- ═══════════ DASHBOARD ═══════════ -->
+<div id="dashboard-view" class="hidden">
 
-  <script>
-    const defaultApiUrl = 'https://offgrid-sf7l.onrender.com';
-    const savedApiUrl = localStorage.getItem('offgrid-admin-api-v2') || defaultApiUrl;
-    const loginView = document.querySelector('#login-view');
-    const dashboardView = document.querySelector('#dashboard-view');
-    const apiUrlInput = document.querySelector('#api-url');
-    const apiSetup = document.querySelector('#api-setup');
-    const loginForm = document.querySelector('#login-form');
-    let apiBase = '';
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="logo">OffGrid Delhi</span>
+      <span style="color:#333;font-size:1.2rem">/</span>
+      <span style="color:var(--dim);font-size:.88rem">Admin</span>
+    </div>
+    <div class="topbar-right">
+      <span class="dot-live" id="api-dot"></span>
+      <span id="api-status-label" style="font-size:.82rem;color:var(--dim)">Checking…</span>
+      <button id="logout" class="btn ghost" type="button" style="padding:7px 14px;font-size:.85rem">Sign out</button>
+    </div>
+  </header>
 
-    function setApiBase(value) {
-      apiBase = value.replace(/\/+$/, '');
-      localStorage.setItem('offgrid-admin-api-v2', apiBase);
-      apiSetup.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      document.querySelector('#change-api').classList.remove('hidden');
-      document.querySelector('#password').focus();
-    }
+  <div class="dash-body">
 
-    async function connectApi() {
-      const message = document.querySelector('#api-message');
-      const button = document.querySelector('#connect');
-      const candidate = apiUrlInput.value.trim().replace(/\/+$/, '');
-      if (!candidate) {
-        message.textContent = 'Enter your Render backend URL first.';
-        return;
-      }
-      button.disabled = true;
-      message.textContent = 'Checking backend…';
-      try {
-        const response = await fetch(`${candidate}/api/health`);
-        if (!response.ok || (await response.json()).status !== 'ok') throw new Error('The backend did not return a healthy response.');
-        setApiBase(candidate);
-      } catch (error) {
-        message.textContent = `${error.message || 'Could not reach the backend.'} Check the URL and FRONTEND_ORIGIN CORS setting.`;
-        button.disabled = false;
-      }
-    }
+    <!-- Stats -->
+    <div class="stats" id="stats-row">
+      <div class="stat"><div class="stat-label">Participants</div><div class="stat-val" id="s-total">—</div></div>
+      <div class="stat"><div class="stat-label">Puzzles solved</div><div class="stat-val ok" id="s-solved">—</div></div>
+      <div class="stat"><div class="stat-label">Journal entries</div><div class="stat-val" id="s-journals">—</div></div>
+      <div class="stat"><div class="stat-label">Today (day <span id="s-daynum">?</span>)</div><div class="stat-val red" id="s-today">—</div></div>
+    </div>
 
-    document.querySelector('#connect').addEventListener('click', connectApi);
-    document.querySelector('#change-api').addEventListener('click', () => {
-      localStorage.removeItem('offgrid-admin-api-v2');
-      apiBase = '';
-      loginForm.classList.add('hidden');
-      apiSetup.classList.remove('hidden');
-      document.querySelector('#change-api').classList.add('hidden');
-      document.querySelector('#api-message').textContent = '';
-    });
-    apiUrlInput.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        connectApi();
-      }
-    });
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="journals">📓 Journal Entries</button>
+      <button class="tab" data-tab="participants">👤 Participants</button>
+      <button class="tab" data-tab="status">⚙️ System</button>
+    </div>
 
-    async function openDashboard() {
-      loginView.classList.add('hidden');
-      dashboardView.classList.remove('hidden');
-      try {
-        const response = await fetch(`${apiBase}/api/health`);
-        if (!response.ok) throw new Error();
-        const result = await response.json();
-        document.querySelector('#api-status').textContent = result.status === 'ok' ? 'Online' : 'Unexpected response';
-      } catch {
-        const status = document.querySelector('#api-status');
-        status.textContent = 'Unavailable';
-        status.classList.add('error');
-      }
-    }
+    <!-- JOURNALS TAB -->
+    <div id="tab-journals">
+      <div class="section-head">
+        <h2>Journal Entries</h2>
+        <input class="search" id="journal-search" type="text" placeholder="Search code or name…">
+      </div>
+      <div class="tbl-wrap">
+        <table id="journals-table">
+          <thead><tr>
+            <th>Code</th><th>Day</th><th>Puzzle</th><th>What the puzzle said</th><th>Thinking</th><th>Received</th><th></th>
+          </tr></thead>
+          <tbody id="journals-body">
+            <tr><td colspan="7" class="loading">Loading journal entries…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    async function checkSession() {
-      if (!apiBase) return;
-      try {
-        const response = await fetch(`${apiBase}/api/admin/session`, { credentials: 'include' });
-        if (response.ok) await openDashboard();
-      } catch {
-        // The login view remains available if the API session cannot be checked.
-      }
-    }
+    <!-- PARTICIPANTS TAB -->
+    <div id="tab-participants" class="hidden">
+      <div class="section-head">
+        <h2>Participants</h2>
+        <input class="search" id="part-search" type="text" placeholder="Search by code…">
+      </div>
+      <div class="tbl-wrap">
+        <table id="part-table">
+          <thead><tr>
+            <th>Ticket code</th><th>Day 1</th><th>Day 2</th><th>Day 3</th><th>Day 4</th><th>Day 5</th><th>Day 6</th><th>Day 7</th><th>Journals</th>
+          </tr></thead>
+          <tbody id="part-body">
+            <tr><td colspan="9" class="loading">Loading participants…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    loginForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const submit = document.querySelector('#submit');
-      const message = document.querySelector('#message');
-      submit.disabled = true;
-      message.textContent = 'Signing in…';
-      try {
-        const response = await fetch(`${apiBase}/api/admin/login`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: loginForm.password.value }),
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || 'Unable to sign in.');
-        await openDashboard();
-      } catch (error) {
-        message.textContent = error.message || 'Unable to reach the server. Check the backend CORS settings.';
-      } finally {
-        submit.disabled = false;
-      }
-    });
+    <!-- SYSTEM TAB -->
+    <div id="tab-status" class="hidden">
+      <div class="section-head"><h2>System status</h2></div>
+      <div class="stats" style="margin-bottom:20px">
+        <div class="stat"><div class="stat-label">API</div><div class="stat-val" id="sys-api">—</div></div>
+        <div class="stat"><div class="stat-label">Session</div><div class="stat-val ok" style="font-size:1.4rem">Active</div></div>
+        <div class="stat"><div class="stat-label">Backend URL</div><div class="stat-val" id="sys-url" style="font-size:.75rem;word-break:break-all;margin-top:4px">—</div></div>
+      </div>
+      <div class="notice">Journal entries are sent by participants as emails to hello@offgriddelhi.com and also stored in the backend. If entries appear here, the backend /api/admin/journals endpoint is live. If the table is empty, entries are arriving only by email until the endpoint is added.</div>
+    </div>
 
-    document.querySelector('#logout').addEventListener('click', async () => {
-      await fetch(`${apiBase}/api/admin/logout`, { method: 'POST', credentials: 'include' });
-      dashboardView.classList.add('hidden');
-      loginView.classList.remove('hidden');
-      loginForm.reset();
-    });
+  </div><!-- dash-body -->
+</div><!-- dashboard-view -->
 
-    apiUrlInput.value = savedApiUrl;
-    connectApi().then(() => checkSession());
-  </script>
+<!-- MODAL -->
+<div class="modal-bg hidden" id="modal">
+  <div class="modal">
+    <p class="eyebrow" id="modal-eyebrow"></p>
+    <h3 id="modal-title"></h3>
+    <p class="meta" id="modal-meta"></p>
+    <div class="modal-section">
+      <strong>What the puzzle was saying</strong>
+      <p id="modal-q2"></p>
+    </div>
+    <div class="modal-section">
+      <strong>Their thinking &amp; how they solved it</strong>
+      <p id="modal-q3"></p>
+    </div>
+    <button class="btn ghost modal-close" id="modal-close" type="button">Close</button>
+  </div>
+</div>
+
+<script>
+(function(){
+const apiBase='https://offgrid-sf7l.onrender.com';
+const $=id=>document.getElementById(id);
+const loginView=$('login-view'),dashView=$('dashboard-view');
+
+/* ── helpers ── */
+function api(path,opts={}){return fetch(apiBase+path,{credentials:'include',...opts})}
+
+/* ── tab switching ── */
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    ['journals','participants','status'].forEach(t=>$('tab-'+t).classList.add('hidden'));
+    $('tab-'+btn.dataset.tab).classList.remove('hidden');
+  });
+});
+
+/* ── login ── */
+$('login-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=$('submit'),msg=$('message');
+  btn.disabled=true;msg.textContent='Signing in…';
+  try{
+    const r=await api('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('login-form').password.value})});
+    const j=await r.json();
+    if(!r.ok)throw new Error(j.error||'Unable to sign in.');
+    openDashboard();
+  }catch(err){msg.textContent=err.message||'Unable to reach server.'}
+  finally{btn.disabled=false}
+});
+$('logout').addEventListener('click',async()=>{
+  await api('/api/admin/logout',{method:'POST'}).catch(()=>{});
+  dashView.classList.add('hidden');loginView.classList.remove('hidden');
+  $('login-form').reset();
+});
+
+/* ── open dashboard ── */
+function openDashboard(){
+  loginView.classList.add('hidden');
+  dashView.classList.remove('hidden');
+  $('sys-url').textContent=apiBase;
+  checkApiStatus();
+  loadData();
+}
+
+async function checkApiStatus(){
+  try{
+    const r=await api('/api/health');
+    const j=await r.json();
+    const ok=r.ok&&j.status==='ok';
+    $('api-dot').style.background=ok?'#4fd477':'#d74';
+    $('api-dot').style.boxShadow=ok?'0 0 10px #4fd47799':'none';
+    $('api-status-label').textContent=ok?'API online':'API error';
+    $('sys-api').textContent=ok?'Online':'Error';
+  }catch{$('api-status-label').textContent='Unreachable';$('api-dot').style.background='#d74'}
+}
+
+/* ── load all data ── */
+let allJournals=[],allParticipants=[];
+async function loadData(){
+  const today=new Date();
+  const dayNum=today>=new Date(2026,10,7)?7:today>=new Date(2026,10,6)?6:today>=new Date(2026,10,5)?5:today>=new Date(2026,10,4)?4:today>=new Date(2026,10,3)?3:today>=new Date(2026,10,2)?2:today>=new Date(2026,10,1)?1:0;
+  $('s-daynum').textContent=dayNum||'?';
+  await Promise.all([loadJournals(dayNum),loadParticipants()]);
+}
+
+async function loadJournals(dayNum){
+  try{
+    const r=await api('/api/admin/journals');
+    if(!r.ok)throw new Error();
+    allJournals=await r.json();
+  }catch{
+    allJournals=[];
+  }
+  $('s-journals').textContent=allJournals.length;
+  const todayJ=allJournals.filter(j=>j.day==dayNum).length;
+  $('s-today').textContent=todayJ;
+  renderJournals(allJournals);
+}
+
+async function loadParticipants(){
+  try{
+    const r=await api('/api/admin/participants');
+    if(!r.ok)throw new Error();
+    allParticipants=await r.json();
+  }catch{
+    allParticipants=[];
+  }
+  $('s-total').textContent=allParticipants.length||100;
+  const totalSolved=allParticipants.reduce((a,p)=>a+(p.solved||0),0);
+  $('s-solved').textContent=totalSolved;
+  renderParticipants(allParticipants);
+}
+
+/* ── render journals ── */
+function renderJournals(list){
+  const q=($('journal-search').value||'').toLowerCase();
+  const filtered=q?list.filter(j=>(j.code||'').toLowerCase().includes(q)||(j.name||'').toLowerCase().includes(q)):list;
+  const tb=$('journals-body');
+  if(!filtered.length){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-ico">📭</div>No journal entries yet. They arrive by email at hello@offgriddelhi.com and will appear here once the /api/admin/journals endpoint is live.</div></td></tr>';
+    return;
+  }
+  tb.innerHTML=filtered.map((j,i)=>`
+    <tr>
+      <td><span class="code">${esc(j.code||'—')}</span></td>
+      <td>Day ${esc(String(j.day||'?'))}</td>
+      <td style="font-size:.82rem;color:#aaa">${esc(j.puzzle_type||'—')}</td>
+      <td><div class="excerpt">${esc(j.what_it_said||'—')}</div></td>
+      <td><div class="excerpt">${esc(j.thinking||'—')}</div></td>
+      <td style="font-size:.8rem;color:var(--dim);white-space:nowrap">${fmtDate(j.submitted_at)}</td>
+      <td><button class="btn ghost" style="padding:5px 12px;font-size:.8rem" onclick="openModal(${i})">Read</button></td>
+    </tr>`).join('');
+  window._journals=filtered;
+}
+
+/* ── render participants ── */
+function renderParticipants(list){
+  const q=($('part-search').value||'').toLowerCase();
+  const filtered=q?list.filter(p=>(p.code||'').toLowerCase().includes(q)):list;
+  const tb=$('part-body');
+  if(!filtered.length){
+    tb.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-ico">👤</div>No participant data yet. Add /api/admin/participants to your backend to populate this table.</div></td></tr>';
+    return;
+  }
+  tb.innerHTML=filtered.map(p=>{
+    const days=[1,2,3,4,5,6,7].map(d=>`<td>${p['day'+d]?'<span class="pill solved">✓</span>':'<span class="pill unsolved">—</span>'}</td>`).join('');
+    return`<tr><td><span class="code">${esc(p.code||'—')}</span></td>${days}<td><span class="pill submitted">${p.journals||0}</span></td></tr>`;
+  }).join('');
+}
+
+/* ── search ── */
+$('journal-search').addEventListener('input',()=>renderJournals(allJournals));
+$('part-search').addEventListener('input',()=>renderParticipants(allParticipants));
+
+/* ── modal ── */
+window.openModal=function(i){
+  const j=window._journals[i];if(!j)return;
+  $('modal-eyebrow').textContent='Code: '+(j.code||'—')+' · Day '+(j.day||'?');
+  $('modal-title').textContent=(j.puzzle_type||'Journal Entry');
+  $('modal-meta').textContent='Submitted '+(j.submitted_at?new Date(j.submitted_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'}):'—');
+  $('modal-q2').textContent=j.what_it_said||'(empty)';
+  $('modal-q3').textContent=j.thinking||'(empty)';
+  $('modal').classList.remove('hidden');
+};
+$('modal-close').addEventListener('click',()=>$('modal').classList.add('hidden'));
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.add('hidden')});
+
+/* ── utils ── */
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function fmtDate(s){if(!s)return '—';try{return new Date(s).toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' '+new Date(s).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}catch{return s}}
+
+/* ── check session ── */
+async function checkSession(){
+  if(!apiBase)return;
+  try{
+    const r=await api('/api/admin/session');
+    if(r.ok)openDashboard();
+    }catch{}
+}
+
+/* ── boot ── */
+  checkSession();
+})();
+</script>
 </body>
 </html>
