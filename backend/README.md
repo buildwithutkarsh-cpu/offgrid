@@ -18,6 +18,12 @@ Render supplies `PORT` automatically. Create an Atlas database, allow Render to 
 
 For local browser development, the default allowed origin is `http://localhost:5500`. Set `FRONTEND_ORIGIN` to a comma-separated list if the site uses multiple origins. Requests without an `Origin` header, such as health checks from command-line tools, are allowed.
 
+## Online puzzles
+
+The private source file belongs at `../tmp/puzzle.csv` and is ignored by Git. Run `npm run check:puzzles` from `backend/` to validate its 7-column CSV structure, rows, unique day/ticket codes, and question/hint coverage for every puzzle type without touching the database. Set `MONGODB_URI` in `backend/.env.local`, then run `npm run import:puzzles` to upsert the puzzle set into MongoDB. Re-run the import after changing the source CSV. The `Key` puzzle type has no key column in the CSV; its in-game hint calls this out, and that cipher needs its key/rule supplied to be fully fair-play solvable.
+
+The static game is served at `/play/`. It requests a ticket's current-day puzzle from `GET /api/puzzles/today?ticketCode=...`; answers are checked by `POST /api/puzzles/answer` and are never sent to the browser. The API uses the Asia/Kolkata date and only serves the seven-day round from 1 through 7 November 2026. Puzzle progress is saved per day and ticket code.
+
 ## Admin dashboard
 
 Visit `/admin/` on the static website. The dashboard connects to the configured Render API URL. Configure these environment variables in Render (and in your shell for local development):

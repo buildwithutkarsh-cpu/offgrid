@@ -5,6 +5,8 @@ const cors = require('cors');
 const express = require('express');
 const { rateLimit } = require('express-rate-limit');
 const mongoose = require('mongoose');
+const Puzzle = require('./models/Puzzle');
+const PuzzleProgress = require('./models/PuzzleProgress');
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -84,10 +86,37 @@ const registrationLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many registration attempts. Please try again later.' },
 });
+const puzzleAnswerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many answer attempts. Please try again later.' },
+});
 
 function requireAdmin(req, res, next) {
   if (!hasAdminSession(req)) return res.status(401).json({ error: 'Not authenticated.' });
   return next();
+}
+
+function getRoundDay(now = new Date()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+  }).formatToParts(now).map(({ type, value }) => [type, value]));
+  const localDate = Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day));
+  const firstRoundDate = Date.UTC(2026, 10, 1);
+  const day = Math.floor((localDate - firstRoundDate) / 86400000) + 1;
+
+  if (day < 1) return { state: 'upcoming', day: null };
+  if (day > 7) return { state: 'closed', day: null };
+  return { state: 'open', day };
+}
+
+function normalizeAnswer(value) {
+  return value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 }
 
 app.get('/', (_req, res) => {
@@ -96,6 +125,37 @@ app.get('/', (_req, res) => {
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
+});
+
+app.get('/api/puzzles/today', async (req, res) => {
+  const round = getRoundDay();
+  if (round.state === 'upcoming') {
+    return res.status(403).json({ error: 'The online puzzle round opens on 1 November 2026 at 12:00 AM IST.' });
+  }
+  if (round.state === 'closed') return res.status(410).json({ error: 'The online puzzle round has ended.' });
+
+  const ticketCode = typeof req.query.ticketCode === 'string' ? req.query.ticketCode.trim().toUpperCase() : '';
+  if (!/^[A-Z0-9]{5}$/.test(ticketCode)) {
+    return res.status(400).json({ error: 'Enter your five-character ticket code.' });
+  }
+
+  try {
+    const puzzle = await Puzzle.findOne({ day: round.day, ticketCode }).select('-answer').lean();
+    if (!puzzle) return res.status(404).json({ error: 'No puzzle was found for that ticket today. Check the code and try again.' });
+    const progress = await PuzzleProgress.findOne({ day: round.day, ticketCode }).lean();
+    return res.json({
+      day: puzzle.day,
+      puzzleType: puzzle.puzzleType,
+      question: puzzle.question,
+      cipherText: puzzle.cipherText,
+      hints: [puzzle.hint1, puzzle.hint2],
+      solved: Boolean(progress?.solvedAt),
+      attempts: progress?.attempts || 0,
+    });
+  } catch (error) {
+    console.error('Unable to load puzzle:', error.message);
+    return res.status(503).json({ error: 'The puzzle service is temporarily unavailable.' });
+  }
 });
 
 app.post('/api/registrations', registrationLimiter, async (req, res) => {
@@ -200,4 +260,45 @@ async function start() {
 start().catch((error) => {
   console.error('Unable to start OffGrid Delhi API:', error.message);
   process.exit(1);
+});
+
+app.post('/api/puzzles/answer', puzzleAnswerLimiter, async (req, res) => {
+  const round = getRoundDay();
+  if (round.state === 'upcoming') {
+    return res.status(403).json({ error: 'The online puzzle round opens on 1 November 2026 at 12:00 AM IST.' });
+  }
+  if (round.state === 'closed') return res.status(410).json({ error: 'The online puzzle round has ended.' });
+
+  const ticketCode = typeof req.body?.ticketCode === 'string' ? req.body.ticketCode.trim().toUpperCase() : '';
+  const answer = typeof req.body?.answer === 'string' ? normalizeAnswer(req.body.answer.trim()) : '';
+  if (!/^[A-Z0-9]{5}$/.test(ticketCode) || !answer || answer.length > 100) {
+    return res.status(400).json({ error: 'Enter your five-character ticket code and an answer.' });
+  }
+
+  try {
+    const puzzle = await Puzzle.findOne({ day: round.day, ticketCode }).select('+answer').lean();
+    if (!puzzle) return res.status(404).json({ error: 'No puzzle was found for that ticket today. Check the code and try again.' });
+    const progress = await PuzzleProgress.findOne({ day: round.day, ticketCode }).lean();
+    if (progress?.solvedAt) return res.json({ correct: true, solved: true, attempts: progress.attempts });
+
+    const correct = normalizeAnswer(puzzle.answer) === answer;
+    const updatedProgress = await PuzzleProgress.findOneAndUpdate(
+      { day: round.day, ticketCode },
+      {
+        $inc: { attempts: 1 },
+        $setOnInsert: { day: round.day, ticketCode },
+        ...(correct ? { $set: { solvedAt: new Date() } } : {}),
+      },
+      { upsert: true, new: true, runValidators: true },
+    ).lean();
+    return res.json({
+      correct,
+      solved: correct,
+      attempts: updatedProgress.attempts,
+      message: correct ? 'Correct. The signal is yours.' : 'Not quite. Recheck the cipher and try again.',
+    });
+  } catch (error) {
+    console.error('Unable to check puzzle answer:', error.message);
+    return res.status(503).json({ error: 'Answer checking is temporarily unavailable.' });
+  }
 });
