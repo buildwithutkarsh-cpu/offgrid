@@ -262,14 +262,6 @@ app.post('/api/admin/logout', (_req, res) => {
   return res.status(204).end();
 });
 
-app.use('/api', (_req, res) => {
-  res.status(404).json({ error: 'API route not found' });
-});
-
-app.use((_req, res) => {
-  res.status(404).json({ error: 'Not found' });
-});
-
 async function start() {
   if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is required.');
   await mongoose.connect(process.env.MONGODB_URI);
@@ -334,4 +326,12 @@ app.post('/api/puzzles/answer', puzzleAnswerLimiter, async (req, res) => {
     console.error('Unable to check puzzle answer:', error.message);
     return res.status(503).json({ error: 'Answer checking is temporarily unavailable.' });
   }
+});
+
+app.use('/api', (_req, res) => {
+  res.status(404).json({ error: 'API route not found' });
+});
+
+app.use((_req, res) => {
+  res.status(404).json({ error: 'Not found' });
 });
