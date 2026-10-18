@@ -198,7 +198,7 @@
         <div class="stat"><div class="stat-label">Session</div><div class="stat-val ok" style="font-size:1.4rem">Active</div></div>
         <div class="stat"><div class="stat-label">Backend URL</div><div class="stat-val" id="sys-url" style="font-size:.75rem;word-break:break-all;margin-top:4px">—</div></div>
       </div>
-      <div class="notice">Journal entries are sent by participants as emails to hello@offgriddelhi.com and also stored in the backend. If entries appear here, the backend /api/admin/journals endpoint is live. If the table is empty, entries are arriving only by email until the endpoint is added.</div>
+      <div class="notice">Journal entries appear here when the backend /api/admin/journals endpoint is configured and receiving submissions.</div>
     </div>
 
   </div><!-- dash-body -->
@@ -335,7 +335,7 @@ function renderJournals(list){
   const filtered=q?list.filter(j=>(j.code||'').toLowerCase().includes(q)||(j.name||'').toLowerCase().includes(q)):list;
   const tb=$('journals-body');
   if(!filtered.length){
-    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-ico">📭</div>No journal entries yet. They arrive by email at hello@offgriddelhi.com and will appear here once the /api/admin/journals endpoint is live.</div></td></tr>';
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-ico">📭</div>No journal entries yet. Entries will appear here once the /api/admin/journals endpoint is live.</div></td></tr>';
     return;
   }
   tb.innerHTML=filtered.map((j,i)=>`
