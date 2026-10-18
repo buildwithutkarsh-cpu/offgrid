@@ -49,7 +49,8 @@
   </main>
 
   <script>
-    const savedApiUrl = localStorage.getItem('offgrid-admin-api') || '';
+    const defaultApiUrl = 'https://offgrid-sf7l.onrender.com';
+    const savedApiUrl = localStorage.getItem('offgrid-admin-api-v2') || defaultApiUrl;
     const loginView = document.querySelector('#login-view');
     const dashboardView = document.querySelector('#dashboard-view');
     const apiUrlInput = document.querySelector('#api-url');
@@ -59,7 +60,7 @@
 
     function setApiBase(value) {
       apiBase = value.replace(/\/+$/, '');
-      localStorage.setItem('offgrid-admin-api', apiBase);
+      localStorage.setItem('offgrid-admin-api-v2', apiBase);
       apiSetup.classList.add('hidden');
       loginForm.classList.remove('hidden');
       document.querySelector('#change-api').classList.remove('hidden');
@@ -88,7 +89,7 @@
 
     document.querySelector('#connect').addEventListener('click', connectApi);
     document.querySelector('#change-api').addEventListener('click', () => {
-      localStorage.removeItem('offgrid-admin-api');
+      localStorage.removeItem('offgrid-admin-api-v2');
       apiBase = '';
       loginForm.classList.add('hidden');
       apiSetup.classList.remove('hidden');
@@ -157,11 +158,8 @@
       loginForm.reset();
     });
 
-    if (savedApiUrl) {
-      apiUrlInput.value = savedApiUrl;
-      setApiBase(savedApiUrl);
-      checkSession();
-    }
+    apiUrlInput.value = savedApiUrl;
+    connectApi().then(() => checkSession());
   </script>
 </body>
 </html>
