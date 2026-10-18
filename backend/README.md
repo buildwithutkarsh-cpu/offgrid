@@ -24,6 +24,8 @@ Place the source file at `backend/puzzles.csv`. Run `npm run check:puzzles` from
 
 The static game is served at `/play/`. It requests a ticket's current-day puzzle from `GET /api/puzzles/today?ticketCode=...`; answers are checked by `POST /api/puzzles/answer` and are never sent to the browser. The API uses the Asia/Kolkata date and only serves the seven-day round from 1 through 7 November 2026. Puzzle progress is saved per day and ticket code.
 
+For pre-launch testing, set `PUZZLE_PREVIEW_ENABLED=true` on the backend and open `/play/?preview`. Enter a ticket code and choose Day 1–7 to load and solve a real puzzle before the round opens. Preview attempts and solved status are stored separately from live puzzle progress. Turn the setting off after testing; normal puzzle access remains limited to the live round.
+
 ## Admin dashboard
 
 Visit `/admin/` on the static website. The dashboard connects to the configured Render API URL. Configure these environment variables in Render (and in your shell for local development):

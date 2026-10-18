@@ -16,6 +16,8 @@
     .question{margin:20px 0 0;color:var(--ink);font-size:1rem;line-height:1.55}
     .hint-tools{display:flex;align-items:flex-start;gap:12px;margin-top:18px}
     .hint-text{margin:4px 0 0;color:var(--dim);font-size:.9rem;line-height:1.55}
+    .preview-notice{margin:0 0 20px;padding:12px 16px;border:1px dashed var(--red);color:var(--dim);font-size:.88rem;line-height:1.5}
+    .day-select{width:100%;height:46px;margin-bottom:12px;padding:0 12px;border:1px solid #555;border-radius:6px;background:#050505;color:var(--ink);font:500 .95rem Inter,sans-serif}
     @media(max-width:540px){.hint-tools{flex-direction:column}.hint-tools .btn{width:100%}}
   </style>
 </head>
@@ -37,7 +39,13 @@
       <p class="state-title">Opens 1 November 2026 · 12:00 AM IST</p>
     </section>
 
+    <p class="preview-notice" id="preview-notice" hidden>Preview mode. Puzzle attempts and solved status are saved separately from the live round.</p>
+
     <form class="form" id="ticket-form" hidden>
+      <label class="field-label" for="preview-day" id="preview-day-label" hidden>Choose a puzzle day</label>
+      <select class="day-select" id="preview-day" hidden>
+        <option value="1">Day 1</option><option value="2">Day 2</option><option value="3">Day 3</option><option value="4">Day 4</option><option value="5">Day 5</option><option value="6">Day 6</option><option value="7">Day 7</option>
+      </select>
       <label class="field-label" for="ticket-code">Your five-character ticket code</label>
       <div class="input-row"><input id="ticket-code" name="ticketCode" type="text" minlength="5" maxlength="5" pattern="[A-Za-z0-9]{5}" autocomplete="off" autocapitalize="characters" required><button class="btn" id="load-puzzle" type="submit">Load today's puzzle</button></div>
       <p class="hint">Use the code issued to your participant. Each ticket has its own daily cipher.</p>
@@ -63,9 +71,11 @@
     (() => {
       const apiBase = 'https://offgrid-sf7l.onrender.com';
       const opensAt = Date.parse('2026-11-01T00:00:00+05:30');
+      const previewMode = new URLSearchParams(window.location.search).has('preview');
       const upcoming = document.querySelector('#upcoming');
       const ticketForm = document.querySelector('#ticket-form');
       const ticketInput = document.querySelector('#ticket-code');
+      const previewDay = document.querySelector('#preview-day');
       const puzzlePanel = document.querySelector('#puzzle');
       let activeTicket = '';
       let activeHints = [];
@@ -73,6 +83,15 @@
 
       function updateRoundState() {
         const remaining = opensAt - Date.now();
+        if (previewMode) {
+          upcoming.hidden = true;
+          ticketForm.hidden = false;
+          document.querySelector('#preview-notice').hidden = false;
+          document.querySelector('#preview-day-label').hidden = false;
+          previewDay.hidden = false;
+          document.querySelector('#load-puzzle').textContent = 'Load selected puzzle';
+          return 0;
+        }
         if (remaining <= 0) {
           upcoming.hidden = true;
           ticketForm.hidden = false;
@@ -98,7 +117,12 @@
         button.disabled = true;
         message.textContent = 'Tuning in…';
         try {
-          const response = await fetch(`${apiBase}/api/puzzles/today?ticketCode=${encodeURIComponent(activeTicket)}`);
+          const params = new URLSearchParams({ ticketCode: activeTicket });
+          if (previewMode) {
+            params.set('preview', 'true');
+            params.set('day', previewDay.value);
+          }
+          const response = await fetch(`${apiBase}/api/puzzles/today?${params}`);
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || 'Could not load your puzzle.');
           document.querySelector('#puzzle-type').textContent = result.puzzleType;
@@ -144,7 +168,11 @@
           const response = await fetch(`${apiBase}/api/puzzles/answer`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticketCode: activeTicket, answer: document.querySelector('#answer').value }),
+            body: JSON.stringify({
+              ticketCode: activeTicket,
+              answer: document.querySelector('#answer').value,
+              ...(previewMode ? { preview: true, day: Number(previewDay.value) } : {}),
+            }),
           });
           const result = await response.json();
           if (!response.ok) throw new Error(result.error || 'Could not check that answer.');

@@ -7,6 +7,7 @@ const { rateLimit } = require('express-rate-limit');
 const mongoose = require('mongoose');
 const Puzzle = require('./models/Puzzle');
 const PuzzleProgress = require('./models/PuzzleProgress');
+const PuzzlePreviewProgress = require('./models/PuzzlePreviewProgress');
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -16,6 +17,7 @@ const sessionCookie = 'offgrid_admin';
 const sessionDurationMs = 8 * 60 * 60 * 1000;
 const registrationOpensAt = Date.parse('2026-11-01T00:00:00+05:30');
 const registrationPreviewEnabled = process.env.REGISTRATION_PREVIEW_ENABLED === 'true';
+const puzzlePreviewEnabled = process.env.PUZZLE_PREVIEW_ENABLED === 'true';
 const registrationSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
   isPreview: { type: Boolean, default: false, required: true },
@@ -130,11 +132,22 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.get('/api/puzzles/today', async (req, res) => {
+  const isPreview = req.query.preview === 'true';
   const round = getRoundDay();
-  if (round.state === 'upcoming') {
+  let day = round.day;
+  if (isPreview) {
+    if (!puzzlePreviewEnabled) {
+      return res.status(403).json({ error: 'Puzzle preview is not enabled on the server.' });
+    }
+    day = Number(req.query.day);
+    if (!Number.isInteger(day) || day < 1 || day > 7) {
+      return res.status(400).json({ error: 'Choose a puzzle day from 1 to 7.' });
+    }
+  } else if (round.state === 'upcoming') {
     return res.status(403).json({ error: 'The online puzzle round opens on 1 November 2026 at 12:00 AM IST.' });
+  } else if (round.state === 'closed') {
+    return res.status(410).json({ error: 'The online puzzle round has ended.' });
   }
-  if (round.state === 'closed') return res.status(410).json({ error: 'The online puzzle round has ended.' });
 
   const ticketCode = typeof req.query.ticketCode === 'string' ? req.query.ticketCode.trim().toUpperCase() : '';
   if (!/^[A-Z0-9]{5}$/.test(ticketCode)) {
@@ -142,9 +155,10 @@ app.get('/api/puzzles/today', async (req, res) => {
   }
 
   try {
-    const puzzle = await Puzzle.findOne({ day: round.day, ticketCode }).select('-answer').lean();
+    const puzzle = await Puzzle.findOne({ day, ticketCode }).select('-answer').lean();
     if (!puzzle) return res.status(404).json({ error: 'No puzzle was found for that ticket today. Check the code and try again.' });
-    const progress = await PuzzleProgress.findOne({ day: round.day, ticketCode }).lean();
+    const Progress = isPreview ? PuzzlePreviewProgress : PuzzleProgress;
+    const progress = await Progress.findOne({ day, ticketCode }).lean();
     return res.json({
       day: puzzle.day,
       puzzleType: puzzle.puzzleType,
@@ -270,11 +284,22 @@ start().catch((error) => {
 });
 
 app.post('/api/puzzles/answer', puzzleAnswerLimiter, async (req, res) => {
+  const isPreview = req.body?.preview === true;
   const round = getRoundDay();
-  if (round.state === 'upcoming') {
+  let day = round.day;
+  if (isPreview) {
+    if (!puzzlePreviewEnabled) {
+      return res.status(403).json({ error: 'Puzzle preview is not enabled on the server.' });
+    }
+    day = Number(req.body?.day);
+    if (!Number.isInteger(day) || day < 1 || day > 7) {
+      return res.status(400).json({ error: 'Choose a puzzle day from 1 to 7.' });
+    }
+  } else if (round.state === 'upcoming') {
     return res.status(403).json({ error: 'The online puzzle round opens on 1 November 2026 at 12:00 AM IST.' });
+  } else if (round.state === 'closed') {
+    return res.status(410).json({ error: 'The online puzzle round has ended.' });
   }
-  if (round.state === 'closed') return res.status(410).json({ error: 'The online puzzle round has ended.' });
 
   const ticketCode = typeof req.body?.ticketCode === 'string' ? req.body.ticketCode.trim().toUpperCase() : '';
   const answer = typeof req.body?.answer === 'string' ? normalizeAnswer(req.body.answer.trim()) : '';
@@ -283,17 +308,18 @@ app.post('/api/puzzles/answer', puzzleAnswerLimiter, async (req, res) => {
   }
 
   try {
-    const puzzle = await Puzzle.findOne({ day: round.day, ticketCode }).select('+answer').lean();
+    const puzzle = await Puzzle.findOne({ day, ticketCode }).select('+answer').lean();
     if (!puzzle) return res.status(404).json({ error: 'No puzzle was found for that ticket today. Check the code and try again.' });
-    const progress = await PuzzleProgress.findOne({ day: round.day, ticketCode }).lean();
+    const Progress = isPreview ? PuzzlePreviewProgress : PuzzleProgress;
+    const progress = await Progress.findOne({ day, ticketCode }).lean();
     if (progress?.solvedAt) return res.json({ correct: true, solved: true, attempts: progress.attempts });
 
     const correct = normalizeAnswer(puzzle.answer) === answer;
-    const updatedProgress = await PuzzleProgress.findOneAndUpdate(
-      { day: round.day, ticketCode },
+    const updatedProgress = await Progress.findOneAndUpdate(
+      { day, ticketCode },
       {
         $inc: { attempts: 1 },
-        $setOnInsert: { day: round.day, ticketCode },
+        $setOnInsert: { day, ticketCode },
         ...(correct ? { $set: { solvedAt: new Date() } } : {}),
       },
       { upsert: true, new: true, runValidators: true },
