@@ -126,7 +126,7 @@
 
     <!-- Stats -->
     <div class="stats" id="stats-row">
-      <div class="stat"><div class="stat-label">Participants</div><div class="stat-val" id="s-total">—</div></div>
+      <div class="stat"><div class="stat-label">Registrations</div><div class="stat-val red" id="s-total">—</div></div>
       <div class="stat"><div class="stat-label">Puzzles solved</div><div class="stat-val ok" id="s-solved">—</div></div>
       <div class="stat"><div class="stat-label">Journal entries</div><div class="stat-val" id="s-journals">—</div></div>
       <div class="stat"><div class="stat-label">Today (day <span id="s-daynum">?</span>)</div><div class="stat-val red" id="s-today">—</div></div>
@@ -135,6 +135,7 @@
     <!-- Tabs -->
     <div class="tabs">
       <button class="tab active" data-tab="journals">📓 Journal Entries</button>
+      <button class="tab" data-tab="registrations">📝 Registrations</button>
       <button class="tab" data-tab="participants">👤 Participants</button>
       <button class="tab" data-tab="status">⚙️ System</button>
     </div>
@@ -153,6 +154,20 @@
           <tbody id="journals-body">
             <tr><td colspan="7" class="loading">Loading journal entries…</td></tr>
           </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REGISTRATIONS TAB -->
+    <div id="tab-registrations" class="hidden">
+      <div class="section-head">
+        <h2>Participation registrations</h2>
+        <input class="search" id="registration-search" type="search" placeholder="Search name, code, email…">
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Reference</th><th>Participant</th><th>Age</th><th>Parent / guardian</th><th>Email</th><th>Phone</th><th>Received</th></tr></thead>
+          <tbody id="registrations-body"><tr><td colspan="7" class="loading">Loading registrations…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -221,7 +236,7 @@ document.querySelectorAll('.tab').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     btn.classList.add('active');
-    ['journals','participants','status'].forEach(t=>$('tab-'+t).classList.add('hidden'));
+    ['journals','registrations','participants','status'].forEach(t=>$('tab-'+t).classList.add('hidden'));
     $('tab-'+btn.dataset.tab).classList.remove('hidden');
   });
 });
@@ -267,12 +282,12 @@ async function checkApiStatus(){
 }
 
 /* ── load all data ── */
-let allJournals=[],allParticipants=[];
+let allJournals=[],allParticipants=[],allRegistrations=[];
 async function loadData(){
   const today=new Date();
   const dayNum=today>=new Date(2026,10,7)?7:today>=new Date(2026,10,6)?6:today>=new Date(2026,10,5)?5:today>=new Date(2026,10,4)?4:today>=new Date(2026,10,3)?3:today>=new Date(2026,10,2)?2:today>=new Date(2026,10,1)?1:0;
   $('s-daynum').textContent=dayNum||'?';
-  await Promise.all([loadJournals(dayNum),loadParticipants()]);
+  await Promise.all([loadJournals(dayNum),loadParticipants(),loadRegistrations()]);
 }
 
 async function loadJournals(dayNum){
@@ -297,10 +312,21 @@ async function loadParticipants(){
   }catch{
     allParticipants=[];
   }
-  $('s-total').textContent=allParticipants.length||100;
   const totalSolved=allParticipants.reduce((a,p)=>a+(p.solved||0),0);
   $('s-solved').textContent=totalSolved;
   renderParticipants(allParticipants);
+}
+
+async function loadRegistrations(){
+  try{
+    const r=await api('/api/admin/registrations');
+    if(!r.ok)throw new Error();
+    allRegistrations=await r.json();
+  }catch{
+    allRegistrations=[];
+  }
+  $('s-total').textContent=allRegistrations.length;
+  renderRegistrations(allRegistrations);
 }
 
 /* ── render journals ── */
@@ -340,9 +366,21 @@ function renderParticipants(list){
   }).join('');
 }
 
+function renderRegistrations(list){
+  const q=($('registration-search').value||'').toLowerCase();
+  const filtered=q?list.filter(r=>[r.code,r.participantName,r.guardianName,r.guardianEmail].some(value=>(value||'').toLowerCase().includes(q))):list;
+  const tb=$('registrations-body');
+  if(!filtered.length){
+    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-ico">📝</div>No participation registrations yet.</div></td></tr>';
+    return;
+  }
+  tb.innerHTML=filtered.map(r=>`<tr><td><span class="code">${esc(r.code||'—')}</span></td><td>${esc(r.participantName||'—')}</td><td>${esc(String(r.participantAge||'—'))}</td><td>${esc(r.guardianName||'—')}</td><td>${esc(r.guardianEmail||'—')}</td><td>${esc(r.guardianPhone||'—')}</td><td style="white-space:nowrap">${fmtDate(r.createdAt)}</td></tr>`).join('');
+}
+
 /* ── search ── */
 $('journal-search').addEventListener('input',()=>renderJournals(allJournals));
 $('part-search').addEventListener('input',()=>renderParticipants(allParticipants));
+$('registration-search').addEventListener('input',()=>renderRegistrations(allRegistrations));
 
 /* ── modal ── */
 window.openModal=function(i){

@@ -50,6 +50,21 @@ button,input[type=text]{font-family:"Single Day",cursive;font-size:1.2rem;letter
 @keyframes b{50%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.glitch,.rec{animation:none}}
 a.wa{display:inline-block;background:#d71f04;color:#fff;border:2px solid #d71f04;border-radius:9px;padding:10px 22px;text-decoration:none;font-size:1.5rem}
+.registration-form{max-width:560px;margin:24px auto;text-align:left;font:400 16px/1.4 Inter,system-ui,sans-serif;letter-spacing:0}
+.registration-form label{display:block;margin:16px 0 6px;color:var(--dim);font-size:.95rem}
+.registration-form input[type=text],.registration-form input[type=email],.registration-form input[type=tel],.registration-form input[type=number]{width:100%;min-height:46px;border:1px solid #555;border-radius:6px;background:#080808;color:#fff;padding:9px 12px;font:inherit;letter-spacing:0;text-transform:none}
+.registration-form input:focus{outline:2px solid #d71f04;outline-offset:2px}
+.registration-form .consent{display:flex;align-items:flex-start;gap:10px;margin:18px 0;color:var(--dim)}
+.registration-form .consent input{width:20px;height:20px;flex:none;margin-top:2px;accent-color:#d71f04}
+.registration-form button{width:100%;min-height:48px}
+.registration-form [role=status]{min-height:1.4em;margin:12px 0 0;color:#9cf0b0;font:400 16px/1.4 Inter,system-ui,sans-serif;letter-spacing:0}
+.registration-form [role=status].error{color:#ff7663}
+.privacy-note{font:400 15px/1.5 Inter,system-ui,sans-serif;color:var(--dim);letter-spacing:0}
+.registration-state{max-width:650px;margin:0 auto 28px}
+.countdown{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:24px auto}
+.countdown span{min-width:94px;padding:12px 14px;border:1px solid #333;border-radius:8px;background:#0a0a0a;font:400 1.35rem/1.2 Inter,system-ui,sans-serif}
+.countdown b{display:block;color:#d71f04;font:600 1.8rem/1.2 Inter,system-ui,sans-serif;letter-spacing:0}
+.preview-notice{margin:0 auto 20px;padding:12px 16px;border:1px dashed #d71f04;color:#fff;font:500 .95rem/1.5 Inter,system-ui,sans-serif;letter-spacing:0}
 </style></head><body>
 <canvas id="sky" aria-hidden="true"></canvas>
 <main>
@@ -73,11 +88,46 @@ a.wa{display:inline-block;background:#d71f04;color:#fff;border:2px solid #d71f04
 </svg></h1>
 <img class="sigil" alt="The OffGrid sigil" src="data:image/webp;base64,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">
 <h2>Register</h2>
-<p>Registration is not open yet. The event is planned for <b>November</b>.</p>
-<p>An online puzzle round runs from <b>1 to 7 November</b>. Details will be announced soon.</p>
-<p>The participation contribution is planned at <b>&#8377;1000&ndash;1500</b> per participant.</p>
-<p>To get updates or register your interest, message us on WhatsApp.</p>
-<p><a class="wa" href="https://wa.me/918750955845?text=Hi%2C%20I%20want%20to%20register%20for%20OffGrid%20Delhi.">WhatsApp: +91 87509 55845</a></p>
+<section id="registration-closed" class="registration-state">
+	<p><b>Registration is not open yet.</b> Registration opens on <b>1 November 2026 at 12:00 AM IST</b>.</p>
+	<p>The online puzzle round runs from <b>1 to 7 November</b>. The proposed participation contribution is <b>&#8377;1000&ndash;1500</b> per participant.</p>
+	<div class="countdown" id="registration-countdown" aria-label="Time until registration opens" aria-live="off">
+		<span><b id="countdown-days">--</b>Days</span>
+		<span><b id="countdown-hours">--</b>Hours</span>
+		<span><b id="countdown-minutes">--</b>Minutes</span>
+		<span><b id="countdown-seconds">--</b>Seconds</span>
+	</div>
+	<p>Questions? <a class="wa" href="https://wa.me/918750955845?text=Hi%2C%20I%20have%20a%20question%20about%20OffGrid%20Delhi%20registration.">WhatsApp: +91 87509 55845</a></p>
+</section>
+<section id="registration-open" class="registration-state" hidden>
+	<p id="preview-notice" class="preview-notice" hidden>Preview mode: submissions are disabled. Registration has not opened.</p>
+	<p>Register your interest in participating. A parent or guardian must complete this form and provide consent for anyone under 18.</p>
+	<form class="registration-form" id="registration-form">
+	<label for="participant-name">Participant name</label>
+	<input id="participant-name" name="participantName" type="text" minlength="2" maxlength="100" autocomplete="name" required>
+
+	<label for="participant-age">Participant age</label>
+	<input id="participant-age" name="participantAge" type="number" min="1" max="17" inputmode="numeric" required>
+
+	<label for="guardian-name">Parent or guardian name</label>
+	<input id="guardian-name" name="guardianName" type="text" minlength="2" maxlength="100" autocomplete="name" required>
+
+	<label for="guardian-email">Parent or guardian email</label>
+	<input id="guardian-email" name="guardianEmail" type="email" maxlength="254" autocomplete="email" required>
+
+	<label for="guardian-phone">Parent or guardian phone</label>
+	<input id="guardian-phone" name="guardianPhone" type="tel" minlength="7" maxlength="30" autocomplete="tel" required>
+
+	<label class="consent" for="guardian-consent">
+		<input id="guardian-consent" name="guardianConsent" type="checkbox" required>
+		<span>I am the participant's parent or legal guardian, and I consent to submitting this registration of interest.</span>
+	</label>
+
+	<p class="privacy-note">We use these details only to respond about OffGrid Delhi participation. Registration of interest does not confirm a place or require payment.</p>
+	<button id="registration-submit" type="submit">Submit registration</button>
+	<p id="registration-message" role="status" aria-live="polite"></p>
+</form>
+</section>
 <p class="dim"><a href="/">Back to OffGrid Delhi</a></p>
 </main>
 <script>
@@ -88,4 +138,57 @@ var rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
 function draw(t){x.clearRect(0,0,c.width,c.height);S.forEach(function(s){x.globalAlpha=rm?.8:.45+.5*Math.sin(t/900+s.p);x.fillStyle=s.c;x.beginPath();x.arc(s.x,s.y,s.r,0,6.3);x.fill()});if(!rm)requestAnimationFrame(draw)}
 addEventListener('resize',function(){size();draw(0)});size();requestAnimationFrame(draw);
 })();
+var registrationOpensAt=new Date('2026-11-01T00:00:00+05:30').getTime();
+var previewRegistration=new URLSearchParams(window.location.search).has('preview');
+var closedRegistration=document.getElementById('registration-closed');
+var openRegistration=document.getElementById('registration-open');
+var registrationForm=document.getElementById('registration-form');
+var registrationSubmit=document.getElementById('registration-submit');
+var previewNotice=document.getElementById('preview-notice');
+function updateRegistrationState(){
+	var remaining=registrationOpensAt-Date.now();
+	if(previewRegistration){
+		closedRegistration.hidden=true;
+		openRegistration.hidden=false;
+		previewNotice.hidden=false;
+		registrationSubmit.disabled=true;
+		return remaining;
+	}
+	if(remaining<=0){
+		closedRegistration.hidden=true;
+		openRegistration.hidden=false;
+		previewNotice.hidden=true;
+		registrationSubmit.disabled=false;
+		return 0;
+	}
+	closedRegistration.hidden=false;
+	openRegistration.hidden=true;
+	document.getElementById('countdown-days').textContent=Math.floor(remaining/86400000);
+	document.getElementById('countdown-hours').textContent=String(Math.floor(remaining%86400000/3600000)).padStart(2,'0');
+	document.getElementById('countdown-minutes').textContent=String(Math.floor(remaining%3600000/60000)).padStart(2,'0');
+	document.getElementById('countdown-seconds').textContent=String(Math.floor(remaining%60000/1000)).padStart(2,'0');
+	return remaining;
+}
+if(updateRegistrationState()>0&&!previewRegistration){
+	var countdownTimer=window.setInterval(function(){if(updateRegistrationState()<=0)window.clearInterval(countdownTimer)},1000);
+}
+registrationForm.addEventListener('submit',async function(event){
+	event.preventDefault();
+	var form=event.currentTarget,button=registrationSubmit,message=document.getElementById('registration-message');
+	if(previewRegistration||Date.now()<registrationOpensAt){message.textContent='Preview only. Registration is not open and no information was sent.';message.classList.add('error');return}
+	var data=Object.fromEntries(new FormData(form));
+	data.participantAge=Number(data.participantAge);
+	data.guardianConsent=document.getElementById('guardian-consent').checked;
+	button.disabled=true;message.classList.remove('error');message.textContent='Submitting…';
+	try{
+		var response=await fetch('https://offgrid-sf7l.onrender.com/api/registrations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+		var result=await response.json();
+		if(!response.ok)throw new Error(result.error||'Registration could not be submitted.');
+		message.textContent='Registration received. Your reference code is '+result.code+'.';
+		form.reset();
+	}catch(error){
+		message.textContent=error.message||'Unable to reach the registration service. Please try again later.';
+		message.classList.add('error');
+	}finally{button.disabled=false}
+});
 </script></body></html>

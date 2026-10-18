@@ -1,7 +1,10 @@
-const { createHmac, timingSafeEqual } = require('node:crypto');
+const { createHmac, randomBytes, timingSafeEqual } = require('node:crypto');
+const path = require('node:path');
+require('dotenv').config({ path: path.join(__dirname, '.env.local') });
 const cors = require('cors');
 const express = require('express');
 const { rateLimit } = require('express-rate-limit');
+const mongoose = require('mongoose');
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -9,6 +12,17 @@ const adminPassword = process.env.ADMIN_PASSWORD;
 const sessionSecret = process.env.ADMIN_SESSION_SECRET;
 const sessionCookie = 'offgrid_admin';
 const sessionDurationMs = 8 * 60 * 60 * 1000;
+const registrationOpensAt = Date.parse('2026-11-01T00:00:00+05:30');
+const registrationSchema = new mongoose.Schema({
+  code: { type: String, required: true, unique: true },
+  participantName: { type: String, required: true, trim: true, maxlength: 100 },
+  participantAge: { type: Number, required: true, min: 1, max: 17 },
+  guardianName: { type: String, required: true, trim: true, maxlength: 100 },
+  guardianEmail: { type: String, required: true, trim: true, lowercase: true, maxlength: 254 },
+  guardianPhone: { type: String, required: true, trim: true, maxlength: 30 },
+  guardianConsent: { type: Boolean, required: true, validate: (value) => value === true },
+}, { timestamps: true });
+const Registration = mongoose.model('Registration', registrationSchema);
 
 const allowedOrigins = (process.env.FRONTEND_ORIGIN || 'http://localhost:5500')
   .split(',')
@@ -63,13 +77,70 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many login attempts. Try again in 15 minutes.' },
 });
+const registrationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Too many registration attempts. Please try again later.' },
+});
+
+function requireAdmin(req, res, next) {
+  if (!hasAdminSession(req)) return res.status(401).json({ error: 'Not authenticated.' });
+  return next();
+}
 
 app.get('/', (_req, res) => {
   res.json({ name: 'OffGrid Delhi API', status: 'ok' });
 });
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' });
+});
+
+app.post('/api/registrations', registrationLimiter, async (req, res) => {
+  if (Date.now() < registrationOpensAt) {
+    return res.status(403).json({ error: 'Registration opens on 1 November 2026 at 12:00 AM IST.' });
+  }
+
+  const {
+    participantName,
+    participantAge,
+    guardianName,
+    guardianEmail,
+    guardianPhone,
+    guardianConsent,
+  } = req.body || {};
+  const normalizedAge = Number(participantAge);
+
+  if (typeof participantName !== 'string' || participantName.trim().length < 2 || participantName.trim().length > 100
+    || !Number.isInteger(normalizedAge) || normalizedAge < 1 || normalizedAge > 17
+    || typeof guardianName !== 'string' || guardianName.trim().length < 2 || guardianName.trim().length > 100
+    || typeof guardianEmail !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail.trim())
+    || guardianEmail.trim().length > 254
+    || typeof guardianPhone !== 'string' || guardianPhone.trim().length < 7 || guardianPhone.trim().length > 30
+    || guardianConsent !== true) {
+    return res.status(400).json({ error: 'Enter valid participant and guardian details, and confirm guardian consent.' });
+  }
+
+  try {
+    const registration = await Registration.create({
+      code: `OG-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`,
+      participantName,
+      participantAge: normalizedAge,
+      guardianName,
+      guardianEmail,
+      guardianPhone,
+      guardianConsent,
+    });
+    return res.status(201).json({ message: 'Registration received.', code: registration.code });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: 'Please check the registration details and try again.' });
+    }
+    console.error('Unable to save registration:', error.message);
+    return res.status(503).json({ error: 'Registration is temporarily unavailable. Please try again later.' });
+  }
 });
 
 app.post('/api/admin/login', loginLimiter, (req, res) => {
@@ -87,9 +158,22 @@ app.post('/api/admin/login', loginLimiter, (req, res) => {
   return res.json({ authenticated: true });
 });
 
-app.get('/api/admin/session', (req, res) => {
-  if (!hasAdminSession(req)) return res.status(401).json({ error: 'Not authenticated.' });
+app.get('/api/admin/session', requireAdmin, (_req, res) => {
   return res.json({ authenticated: true, expiresInMs: sessionDurationMs });
+});
+
+app.get('/api/admin/registrations', requireAdmin, async (_req, res) => {
+  try {
+    const registrations = await Registration.find()
+      .sort({ createdAt: -1 })
+      .limit(500)
+      .select('code participantName participantAge guardianName guardianEmail guardianPhone createdAt')
+      .lean();
+    return res.json(registrations);
+  } catch (error) {
+    console.error('Unable to load registrations:', error.message);
+    return res.status(503).json({ error: 'Registrations are temporarily unavailable.' });
+  }
 });
 
 app.post('/api/admin/logout', (_req, res) => {
@@ -105,6 +189,15 @@ app.use((_req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-app.listen(port, '0.0.0.0', () => {
-  console.log(`OffGrid Delhi API listening on port ${port}`);
+async function start() {
+  if (!process.env.MONGODB_URI) throw new Error('MONGODB_URI is required.');
+  await mongoose.connect(process.env.MONGODB_URI);
+  app.listen(port, '0.0.0.0', () => {
+    console.log(`OffGrid Delhi API listening on port ${port}`);
+  });
+}
+
+start().catch((error) => {
+  console.error('Unable to start OffGrid Delhi API:', error.message);
+  process.exit(1);
 });
