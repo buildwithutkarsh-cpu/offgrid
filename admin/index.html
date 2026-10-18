@@ -166,8 +166,8 @@
       </div>
       <div class="tbl-wrap">
         <table>
-          <thead><tr><th>Reference</th><th>Participant</th><th>Age</th><th>Parent / guardian</th><th>Email</th><th>Phone</th><th>Received</th></tr></thead>
-          <tbody id="registrations-body"><tr><td colspan="7" class="loading">Loading registrations…</td></tr></tbody>
+          <thead><tr><th>Reference</th><th>Type</th><th>Participant</th><th>Age</th><th>Parent / guardian</th><th>Email</th><th>Phone</th><th>Received</th></tr></thead>
+          <tbody id="registrations-body"><tr><td colspan="8" class="loading">Loading registrations…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -371,10 +371,10 @@ function renderRegistrations(list){
   const filtered=q?list.filter(r=>[r.code,r.participantName,r.guardianName,r.guardianEmail].some(value=>(value||'').toLowerCase().includes(q))):list;
   const tb=$('registrations-body');
   if(!filtered.length){
-    tb.innerHTML='<tr><td colspan="7"><div class="empty"><div class="empty-ico">📝</div>No participation registrations yet.</div></td></tr>';
+    tb.innerHTML='<tr><td colspan="8"><div class="empty"><div class="empty-ico">📝</div>No participation registrations yet.</div></td></tr>';
     return;
   }
-  tb.innerHTML=filtered.map(r=>`<tr><td><span class="code">${esc(r.code||'—')}</span></td><td>${esc(r.participantName||'—')}</td><td>${esc(String(r.participantAge||'—'))}</td><td>${esc(r.guardianName||'—')}</td><td>${esc(r.guardianEmail||'—')}</td><td>${esc(r.guardianPhone||'—')}</td><td style="white-space:nowrap">${fmtDate(r.createdAt)}</td></tr>`).join('');
+  tb.innerHTML=filtered.map(r=>`<tr><td><span class="code">${esc(r.code||'—')}</span></td><td><span class="pill ${r.isPreview?'unsolved':'solved'}">${r.isPreview?'Preview':'Live'}</span></td><td>${esc(r.participantName||'—')}</td><td>${esc(String(r.participantAge||'—'))}</td><td>${esc(r.guardianName||'—')}</td><td>${esc(r.guardianEmail||'—')}</td><td>${esc(r.guardianPhone||'—')}</td><td style="white-space:nowrap">${fmtDate(r.createdAt)}</td></tr>`).join('');
 }
 
 /* ── search ── */

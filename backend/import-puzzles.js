@@ -5,7 +5,7 @@ const { parse } = require('csv-parse/sync');
 require('dotenv').config({ path: path.join(__dirname, '.env.local') });
 
 const Puzzle = require('./models/Puzzle');
-const sourcePath = path.join(__dirname, '..', 'tmp', 'puzzle.csv');
+const sourcePath = path.join(__dirname, 'puzzles.csv');
 const requiredColumns = ['Day', 'Date', 'Participant #', 'Ticket code', 'Puzzle type', 'Answer', 'Cipher text'];
 const puzzleGuides = {
   Backwards: {

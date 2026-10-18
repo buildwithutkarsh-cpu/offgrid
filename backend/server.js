@@ -15,8 +15,10 @@ const sessionSecret = process.env.ADMIN_SESSION_SECRET;
 const sessionCookie = 'offgrid_admin';
 const sessionDurationMs = 8 * 60 * 60 * 1000;
 const registrationOpensAt = Date.parse('2026-11-01T00:00:00+05:30');
+const registrationPreviewEnabled = process.env.REGISTRATION_PREVIEW_ENABLED === 'true';
 const registrationSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },
+  isPreview: { type: Boolean, default: false, required: true },
   participantName: { type: String, required: true, trim: true, maxlength: 100 },
   participantAge: { type: Number, required: true, min: 1, max: 17 },
   guardianName: { type: String, required: true, trim: true, maxlength: 100 },
@@ -159,7 +161,11 @@ app.get('/api/puzzles/today', async (req, res) => {
 });
 
 app.post('/api/registrations', registrationLimiter, async (req, res) => {
-  if (Date.now() < registrationOpensAt) {
+  const isPreview = req.body?.preview === true;
+  if (isPreview && !registrationPreviewEnabled) {
+    return res.status(403).json({ error: 'Preview submissions are not enabled on the server.' });
+  }
+  if (Date.now() < registrationOpensAt && !isPreview) {
     return res.status(403).json({ error: 'Registration opens on 1 November 2026 at 12:00 AM IST.' });
   }
 
@@ -186,6 +192,7 @@ app.post('/api/registrations', registrationLimiter, async (req, res) => {
   try {
     const registration = await Registration.create({
       code: `OG-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`,
+      isPreview,
       participantName,
       participantAge: normalizedAge,
       guardianName,
@@ -227,7 +234,7 @@ app.get('/api/admin/registrations', requireAdmin, async (_req, res) => {
     const registrations = await Registration.find()
       .sort({ createdAt: -1 })
       .limit(500)
-      .select('code participantName participantAge guardianName guardianEmail guardianPhone createdAt')
+      .select('code isPreview participantName participantAge guardianName guardianEmail guardianPhone createdAt')
       .lean();
     return res.json(registrations);
   } catch (error) {

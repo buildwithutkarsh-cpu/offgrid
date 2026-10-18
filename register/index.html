@@ -100,7 +100,7 @@ a.wa{display:inline-block;background:#d71f04;color:#fff;border:2px solid #d71f04
 	<p>Questions? <a class="wa" href="https://wa.me/918750955845?text=Hi%2C%20I%20have%20a%20question%20about%20OffGrid%20Delhi%20registration.">WhatsApp: +91 87509 55845</a></p>
 </section>
 <section id="registration-open" class="registration-state" hidden>
-	<p id="preview-notice" class="preview-notice" hidden>Preview mode: submissions are disabled. Registration has not opened.</p>
+	<p id="preview-notice" class="preview-notice" hidden>Preview mode: submissions are test entries marked Preview in the admin dashboard. The server must have preview submissions enabled.</p>
 	<p>Register your interest in participating. A parent or guardian must complete this form and provide consent for anyone under 18.</p>
 	<form class="registration-form" id="registration-form">
 	<label for="participant-name">Participant name</label>
@@ -151,7 +151,7 @@ function updateRegistrationState(){
 		closedRegistration.hidden=true;
 		openRegistration.hidden=false;
 		previewNotice.hidden=false;
-		registrationSubmit.disabled=true;
+		registrationSubmit.disabled=false;
 		return remaining;
 	}
 	if(remaining<=0){
@@ -175,10 +175,11 @@ if(updateRegistrationState()>0&&!previewRegistration){
 registrationForm.addEventListener('submit',async function(event){
 	event.preventDefault();
 	var form=event.currentTarget,button=registrationSubmit,message=document.getElementById('registration-message');
-	if(previewRegistration||Date.now()<registrationOpensAt){message.textContent='Preview only. Registration is not open and no information was sent.';message.classList.add('error');return}
+	if(!previewRegistration&&Date.now()<registrationOpensAt){message.textContent='Registration is not open yet. No information was sent.';message.classList.add('error');return}
 	var data=Object.fromEntries(new FormData(form));
 	data.participantAge=Number(data.participantAge);
 	data.guardianConsent=document.getElementById('guardian-consent').checked;
+	data.preview=previewRegistration;
 	button.disabled=true;message.classList.remove('error');message.textContent='Submitting…';
 	try{
 		var response=await fetch('https://offgrid-sf7l.onrender.com/api/registrations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
